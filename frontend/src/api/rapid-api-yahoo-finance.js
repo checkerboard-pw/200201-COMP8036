@@ -16,7 +16,11 @@ const unixToUTCString = (unixTimestamp) => {
   return utcString;
 };
 
+const CancelToken = axios.CancelToken;
+let cancelAutoComplete;
+
 const autoComplete = (query, updateResult) => {
+  if (cancelAutoComplete !== undefined) cancelAutoComplete();
   console.log('autocomplete', query)
   updateResult([
     {
@@ -29,21 +33,27 @@ const autoComplete = (query, updateResult) => {
       'symbol': 'BBCA210618P00028000'
     }
   ]);
-  // RapidApiYahooFinance({
-  //   'method': 'GET',
-  //   'url': '/auto-complete',
-  //   'params': {
-  //     'q': query
-  //   },
-  //   transformResponse: [(data, request) => {
-  //     // console.log(request);
-  //     const json = JSON.parse(data);
-  //     // console.log(json);
-  //     // console.log(json.quotes.slice(0,4));
-  //     updateResult(json.quotes.slice(0,4));
-  //     return json.quotes.slice(0,4);
-  //   }]
-  // })
+  return;
+  RapidApiYahooFinance({
+    'method': 'GET',
+    'url': '/auto-complete',
+    'params': {
+      'q': query
+    },
+    'cancelToken': new CancelToken((cancel) => {
+      cancelAutoComplete = cancel;
+    }),
+    transformResponse: [(data, request) => {
+      // console.log(request);
+      const json = JSON.parse(data);
+      // console.log(json);
+      // console.log(json.quotes.slice(0,4));
+      updateResult(json.quotes.slice(0,4));
+      return json.quotes.slice(0,4);
+    }]
+  }).catch((error) => {
+    console.log('err', error);
+  });
 };
 
 const getCharts = (query, updateResult) => {
