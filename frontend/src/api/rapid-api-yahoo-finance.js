@@ -19,22 +19,9 @@ const unixToUTCString = (unixTimestamp) => {
 const CancelToken = axios.CancelToken;
 let cancelAutoComplete;
 
-const autoComplete = (query, updateResult) => {
+const autoComplete = (query) => {
   if (cancelAutoComplete !== undefined) cancelAutoComplete();
-  console.log('autocomplete', query)
-  updateResult([
-    {
-      'symbol': 'BBCA',
-      'shortname': 'JPMorgan BetaBuilders Canada ET'
-    },{
-      'symbol': 'BBCA.JK',
-      'shortname': 'Bank Central Asia Tbk.'
-    },{
-      'symbol': 'BBCA210618P00028000'
-    }
-  ]);
-  return;
-  RapidApiYahooFinance({
+  return RapidApiYahooFinance({
     'method': 'GET',
     'url': '/auto-complete',
     'params': {
@@ -42,17 +29,13 @@ const autoComplete = (query, updateResult) => {
     },
     'cancelToken': new CancelToken((cancel) => {
       cancelAutoComplete = cancel;
-    }),
-    transformResponse: [(data, request) => {
-      // console.log(request);
-      const json = JSON.parse(data);
-      // console.log(json);
-      // console.log(json.quotes.slice(0,4));
-      updateResult(json.quotes.slice(0,4));
-      return json.quotes.slice(0,4);
-    }]
+    })
   }).catch((error) => {
-    console.log('err', error);
+    if ( axios.isCancel(error)){
+      console.log('cancelled', error);
+    } else {
+      console.log('err', error);
+    };
   });
 };
 
@@ -71,6 +54,7 @@ const getCharts = (query, updateResult) => {
     ['Fri', 68, 66, 22, 15],
   ];
   updateResult(dummy);
+  return;
   // RapidApiYahooFinance({
   //   'method': 'GET',
   //   'url': '/market/get-charts',
