@@ -1,44 +1,62 @@
 import React, { useState } from 'react'
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+
+import {autoComplete} from './api/rapid-api-yahoo-finance';
   
-const App = () => {
-  
-  const [myOptions, setMyOptions] = useState([])
-  
-  const getDataFromAPI = () => {
-    console.log("Options Fetched from API")
-  
-    fetch('http://dummy.restapiexample.com/api/v1/employees').then((response) => {
-      return response.json()
-    }).then((res) => {
-      console.log(res.data)
-      for (var i = 0; i < res.data.length; i++) {
-        myOptions.push(res.data[i].employee_name)
-      }
-      setMyOptions(myOptions)
-    })
+class App extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: '',
+      myOptions: []
+    }
   }
+
+  onValueChange = (event, newValue) => {
+    this.setState({value: newValue});
+    this.props.onValueChange(newValue);
+  };
   
-  return (
-    <div style={{ marginLeft: '40%', marginTop: '60px' }}>
-      <h3>Greetings from GeeksforGeeks!</h3>
-      <Autocomplete
-        style={{ width: 500 }}
-        freeSolo
-        autoComplete
-        autoHighlight
-        options={myOptions}
-        renderInput={(params) => (
-          <TextField {...params}
-            onChange={getDataFromAPI}
-            variant="outlined"
-            label="Search Box"
-          />
-        )}
-      />
-    </div>
-  );
-}
+  getDataFromAPI = (event) => {
+    console.log("Fetching Options from API with query", event.target.value);
+    autoComplete(event.target.value).then((response) => {
+      return response.data.quotes;
+    }).then((response) => {
+      console.log(response);
+      const res = response.filter((data) => {
+        return data.quoteType == "EQUITY";
+      }).map((data) => {
+        return data.symbol;
+      })
+      this.setState({myOptions: res});
+    }).catch((err) => {});
+  };
   
-export default App
+  render (){
+    return (
+      <div style={{ marginLeft: '40%', marginTop: '60px' }}>
+        <h3>Greetings from GeeksforGeeks!</h3>
+        <div>{`value: ${this.state.value !== null ? `'${this.state.value}'` : 'null'}`}</div>
+        <Autocomplete
+          value={this.state.value}
+          onChange={this.onValueChange}
+          style={{ width: 500 }}
+          freeSolo
+          autoComplete
+          autoHighlight
+          options={this.state.myOptions}
+          renderInput={(params) => (
+            <TextField {...params}
+              onChange={this.getDataFromAPI}
+              variant="outlined"
+              label="Search Box"
+            />
+          )}
+        />
+      </div>
+    );
+  };
+};
+  
+export default App;
