@@ -1,5 +1,5 @@
-import Search from './search-bar';
 import CandlestickChart from './chart';
+import DynamicSearch from './gfg-dynamic-search';
 import React from 'react';
 
 
@@ -10,19 +10,18 @@ class App extends React.Component {
       elementinfo: 'stock',
       symbol: ''
     };
-    this.updateResult = this.updateResult.bind(this);
   }
 
   updateResult = (newSymbol) => {
     this.setState({symbol: newSymbol}, () => {
-      console.log("app updated symbol", this.state.symbol)
+      console.log("app updated symbol", this.state.symbol);
     });
   }
   
   render () {
     return (
       <div className="App">
-        <Search info={this.state.elementinfo} onSearchResultClick={this.updateResult} />
+        <DynamicSearch onValueChange={this.updateResult}/>
         <CandlestickChart symbol={this.state.symbol} />
       </div>
     )
