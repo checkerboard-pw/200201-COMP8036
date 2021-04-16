@@ -1,4 +1,3 @@
-import Search from './search-bar';
 import CandlestickChart from './chart';
 import DynamicSearch from './gfg-dynamic-search';
 import React from 'react';

@@ -36,8 +36,6 @@ class App extends React.Component{
   render (){
     return (
       <div style={{ marginLeft: '40%', marginTop: '60px' }}>
-        <h3>Greetings from GeeksforGeeks!</h3>
-        <div>{`value: ${this.state.value !== null ? `'${this.state.value}'` : 'null'}`}</div>
         <Autocomplete
           value={this.state.value}
           onChange={this.onValueChange}
@@ -50,7 +48,7 @@ class App extends React.Component{
             <TextField {...params}
               onChange={this.getDataFromAPI}
               variant="outlined"
-              label="Search Box"
+              label="Equity Search"
             />
           )}
         />
