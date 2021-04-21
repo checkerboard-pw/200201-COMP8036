@@ -41,7 +41,7 @@ class CandlestickChart extends React.Component {
         <h3>{this.state.symbol}</h3>
         <Chart
           width={'100%'}
-          height={350}
+          height={500}
           chartType="CandlestickChart"
           loader={<div>Loading Chart</div>}
           data={this.state.data}

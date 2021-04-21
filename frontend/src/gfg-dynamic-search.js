@@ -19,7 +19,7 @@ class App extends React.Component{
   };
   
   getDataFromAPI = (event) => {
-    console.log("Fetching Options from API with query", event.target.value);
+    console.log("Fetching Options from API with query:", event.target.value);
     autoComplete(event.target.value).then((response) => {
       return response.data.quotes;
     }).then((response) => {

@@ -17,10 +17,10 @@ const unixToUTCString = (unixTimestamp) => {
 };
 
 const CancelToken = axios.CancelToken;
-let cancelAutoComplete;
+let cancelAutoComplete = null;
 
 const autoComplete = (query) => {
-  if (cancelAutoComplete !== undefined) cancelAutoComplete();
+  if (cancelAutoComplete !== null) cancelAutoComplete();
   return RapidApiYahooFinance({
     'method': 'GET',
     'url': '/auto-complete',
@@ -42,54 +42,39 @@ const autoComplete = (query) => {
 const getCharts = (query, updateResult) => {
   console.log('getcharts', query);
   if(query.symbol === '') {
-    console.log("cancel get charts");
+    console.log("cancel get charts - no symbol");
     return;
   }
-  let dummy = [
-    ['day', 'a', 'b', 'c', 'd'],
-    ['Mon', 20, 28, 38, 45],
-    ['Tue', 31, 38, 55, 66],
-    ['Wed', 50, 55, 77, 80],
-    ['Thu', 77, 77, 66, 50],
-    ['Fri', 68, 66, 22, 15],
-  ];
-  updateResult(dummy);
-  return;
-  // RapidApiYahooFinance({
-  //   'method': 'GET',
-  //   'url': '/market/get-charts',
-  //   'params': {
-  //     'symbol': query.symbol,
-  //     'interval': "5m",
-  //     'range': "1d",
-  //     'region': "ID"
-  //   },
-  //   transformResponse: [(data, request) => {
-  //     const json = JSON.parse(data);
-  //     // console.log(request, json);
-  //     const chartResult = {
-  //       timestamp: json.chart.result[0].timestamp, 
-  //       quote: json.chart.result[0].indicators.quote[0]
-  //     };
-  //     // console.log(chartResult);
-  //     // transform to googlechart candlestick
-  //     let forGoogleChartCandleStick = [['UTC', 'low', 'open', 'close', 'high']];
-  //     const chartData = chartResult.timestamp.map(
-  //       (timestamp, index) => [
-  //           unixToUTCString(timestamp),
-  //           chartResult.quote.low[index],
-  //           chartResult.quote.open[index],
-  //           chartResult.quote.close[index],
-  //           chartResult.quote.high[index]
-  //       ]);
-  //     // console.log(chartData);
-  //     forGoogleChartCandleStick = forGoogleChartCandleStick.concat(
-  //       chartData.filter((chartData) => (chartData[1] !== null)));
-  //     console.log(forGoogleChartCandleStick);
-  //     updateResult(forGoogleChartCandleStick);
-  //     // NOTHANDLED: Multiple results
-  //   }]
-  // });
+  RapidApiYahooFinance({
+    'method': 'GET',
+    'url': '/market/get-charts',
+    'params': {
+      'symbol': query.symbol,
+      'interval': "5m",
+      'range': "1d",
+      'region': "ID"
+    },
+    transformResponse: [(data, request) => {
+      const json = JSON.parse(data);
+      const chartResult = {
+        timestamp: json.chart.result[0].timestamp, 
+        quote: json.chart.result[0].indicators.quote[0]
+      };
+      let forGoogleChartCandleStick = [['UTC', 'low', 'open', 'close', 'high']];
+      const chartData = chartResult.timestamp.map(
+        (timestamp, index) => [
+            unixToUTCString(timestamp).slice(-12),
+            chartResult.quote.low[index],
+            chartResult.quote.open[index],
+            chartResult.quote.close[index],
+            chartResult.quote.high[index]
+        ]);
+      forGoogleChartCandleStick = forGoogleChartCandleStick.concat(
+        chartData.filter((chartData) => (chartData[1] !== null)));
+      console.log(forGoogleChartCandleStick);
+      updateResult(forGoogleChartCandleStick);
+    }]
+  });
 };
 
 export {autoComplete, getCharts};
